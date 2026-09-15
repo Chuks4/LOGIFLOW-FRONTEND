@@ -1,0 +1,61 @@
+.dashboard {
+  padding-top: 3rem;
+}
+
+.kicker {
+  color: #3c8625;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.welcome h2 {
+  margin-top: 0.7rem;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  letter-spacing: -0.06em;
+}
+
+.welcome > p:last-child {
+  margin-top: 0.8rem;
+  color: #737b70;
+  font-size: 0.9rem;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 3rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.4rem;
+  border: 1px solid #e2e6df;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.card p {
+  color: #657061;
+  font-size: 0.8rem;
+}
+
+.card strong {
+  font-size: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.card span {
+  color: #9aa398;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 760px) {
+  .stats {
+    grid-template-columns: 1fr;
+    margin-top: 2rem;
+  }
+}

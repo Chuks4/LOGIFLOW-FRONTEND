@@ -1,0 +1,171 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  color: #111512;
+  background: #f7f8f5;
+}
+
+.sidebar {
+  width: 15.5rem;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.25rem;
+  color: #f5f8f2;
+  background: #111512;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: inherit;
+  font-size: 1.15rem;
+  font-weight: 750;
+}
+
+.brandMark,
+.avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 0.55rem;
+  color: #10150f;
+  background: #9be85b;
+  font-weight: 850;
+}
+
+.brandMark {
+  width: 2rem;
+  height: 2rem;
+}
+
+.menuLabel,
+.kicker {
+  color: #7c8978;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.menuLabel {
+  margin: 3.5rem 0 0.9rem;
+}
+
+.nav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.navItem {
+  padding: 0.75rem 0.8rem;
+  border-radius: 0.5rem;
+  color: #aeb8aa;
+  font-size: 0.82rem;
+}
+
+.navItem:hover,
+.active {
+  color: #111512;
+  background: #9be85b;
+}
+
+.signOut {
+  margin-top: auto;
+  padding: 0.75rem 0.8rem;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  color: #aeb8aa;
+  background: transparent;
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+.signOut:hover {
+  color: #f5f8f2;
+  background: #252d25;
+}
+
+.content {
+  width: 100%;
+  min-width: 0;
+  padding: 2.5rem clamp(1.25rem, 5vw, 4.5rem);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e2e6df;
+}
+
+.header h1 {
+  margin-top: 0.35rem;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  letter-spacing: -0.055em;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #4d574a;
+  font-size: 0.78rem;
+}
+
+.avatar {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.denied {
+  max-width: 35rem;
+  margin: 8rem auto;
+  text-align: center;
+}
+
+.denied h2 {
+  margin-top: 0.8rem;
+  font-size: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.denied p:last-child {
+  margin-top: 0.8rem;
+  color: #737b70;
+}
+
+@media (max-width: 700px) {
+  .shell {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .menuLabel {
+    margin-top: 1.5rem;
+  }
+
+  .nav {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+
+  .navItem {
+    flex: 0 0 auto;
+  }
+
+  .signOut {
+    display: none;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+  }
+}

@@ -1,54 +1,53 @@
 .page {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(320px, 0.95fr) minmax(480px, 1.05fr);
+  grid-template-columns: minmax(300px, 0.8fr) minmax(600px, 1.2fr);
+  color: #111512;
   background: #f7f8f5;
 }
 
-.hero {
+.intro {
   position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
   overflow: hidden;
+  padding: clamp(2rem, 5vw, 4.5rem);
   color: #f5f8f2;
   background: #111512;
 }
 
-.heroPattern {
-  position: absolute;
-  inset: 0;
-  opacity: 0.6;
-  background:
-    linear-gradient(135deg, transparent 0 48%, rgba(137, 220, 76, 0.08) 48% 49%, transparent 49% 100%),
-    linear-gradient(45deg, transparent 0 67%, rgba(137, 220, 76, 0.07) 67% 67.5%, transparent 67.5% 100%);
-  background-size: 190px 190px, 260px 260px;
-}
-
-.heroPattern::after {
+.intro::before,
+.intro::after {
   position: absolute;
   content: "";
-  width: 540px;
-  height: 540px;
-  right: -280px;
-  bottom: -190px;
-  border: 1px solid rgba(137, 220, 76, 0.2);
+  border: 1px solid rgba(155, 232, 91, 0.17);
   border-radius: 50%;
-  box-shadow: 0 0 0 70px rgba(137, 220, 76, 0.04), 0 0 0 140px rgba(137, 220, 76, 0.03);
+  pointer-events: none;
 }
 
-.heroContent {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: clamp(2rem, 5vw, 4.5rem);
+.intro::before {
+  width: 560px;
+  height: 560px;
+  right: -320px;
+  bottom: -130px;
+  box-shadow: 0 0 0 74px rgba(155, 232, 91, 0.04), 0 0 0 148px rgba(155, 232, 91, 0.025);
+}
+
+.intro::after {
+  width: 240px;
+  height: 240px;
+  top: 38%;
+  left: -170px;
 }
 
 .brand,
 .mobileBrand {
   display: inline-flex;
+  z-index: 1;
+  width: fit-content;
   align-items: center;
   gap: 0.65rem;
-  width: fit-content;
   color: inherit;
   font-size: 1.25rem;
   font-weight: 750;
@@ -67,14 +66,16 @@
   font-weight: 850;
 }
 
-.heroCopy {
-  max-width: 33rem;
+.introCopy {
+  position: relative;
+  z-index: 1;
+  max-width: 27rem;
   margin: auto 0;
 }
 
 .eyebrow,
 .formEyebrow {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.15rem;
   color: #9be85b;
   font-size: 0.75rem;
   font-weight: 750;
@@ -82,37 +83,31 @@
   text-transform: uppercase;
 }
 
-.heroCopy h1 {
-  max-width: 10ch;
-  font-size: clamp(2.8rem, 5vw, 5rem);
+.introCopy h1 {
+  max-width: 9ch;
+  font-size: clamp(2.7rem, 5vw, 4.8rem);
   line-height: 0.98;
   letter-spacing: -0.065em;
 }
 
-.heroText {
-  max-width: 27rem;
-  margin-top: 1.7rem;
+.introCopy p:last-child {
+  max-width: 24rem;
+  margin-top: 1.6rem;
   color: #aeb8aa;
-  font-size: 1rem;
+  font-size: 0.98rem;
   line-height: 1.7;
 }
 
-.heroFooter {
-  color: #6d786b;
-  font-size: 0.78rem;
-  letter-spacing: 0.03em;
-}
 
-.main {
+.formSection {
   display: grid;
   min-height: 100vh;
   place-items: center;
-  padding: 2rem;
-  background: #f7f8f5;
+  padding: 2.5rem clamp(1.25rem, 5vw, 5.5rem);
 }
 
-.formWrapper {
-  width: min(100%, 27rem);
+.formShell {
+  width: min(100%, 42rem);
 }
 
 .mobileBrand {
@@ -120,66 +115,56 @@
   color: #111512;
 }
 
-.formHeader h2 {
-  color: #111512;
-  font-size: clamp(1.9rem, 4vw, 2.35rem);
+.header h2 {
+  font-size: clamp(1.9rem, 4vw, 2.55rem);
   letter-spacing: -0.055em;
 }
 
-.formHeader > p:last-child {
+.header > p:last-child {
+  max-width: 31rem;
   margin-top: 0.8rem;
   color: #737b70;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.55;
 }
 
 .form {
+  margin-top: 2rem;
+}
+
+.formGrid {
   display: grid;
-  gap: 1.25rem;
-  margin-top: 2.2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.15rem 1rem;
 }
 
 .field {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.5rem;
 }
 
-.field label,
-.labelRow a {
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.field label {
   color: #30372e;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 650;
 }
 
-.labelRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.labelRow a,
-.registerPrompt a {
-  color: #3c8625;
-  font-weight: 700;
-}
-
-.labelRow a:hover,
-.registerPrompt a:hover {
-  color: #245a15;
-  text-decoration: underline;
-}
-
-.field input {
+.field input,
+.field select {
   width: 100%;
-  min-height: 3.2rem;
-  padding: 0.8rem 1rem;
+  min-height: 3.05rem;
+  padding: 0.75rem 0.9rem;
   border: 1px solid #dce1d9;
   border-radius: 0.65rem;
   outline: none;
   color: #111512;
   background: #fff;
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
@@ -187,17 +172,29 @@
   color: #a5aca2;
 }
 
-.field input:focus {
+.field select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.field input[type="date"] {
+  color: #30372e;
+  color-scheme: light;
+}
+
+.field input:focus,
+.field select:focus {
   border-color: #67ad42;
   box-shadow: 0 0 0 3px rgba(103, 173, 66, 0.15);
 }
 
 .submitButton {
   display: flex;
+  width: 100%;
   min-height: 3.2rem;
   align-items: center;
   justify-content: center;
-  margin-top: 0.35rem;
+  margin-top: 1.7rem;
   padding: 0.8rem 1.1rem 0.8rem 1.25rem;
   border: 0;
   border-radius: 0.65rem;
@@ -226,6 +223,7 @@
 }
 
 .error {
+  margin-top: 1.5rem;
   padding: 0.75rem 0.9rem;
   border: 1px solid #e3b7b1;
   border-radius: 0.55rem;
@@ -235,43 +233,67 @@
   line-height: 1.45;
 }
 
-.registerPrompt {
-  margin-top: 2rem;
+.signInPrompt {
+  margin-top: 1.6rem;
   color: #7b8378;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   text-align: center;
 }
 
-@media (max-width: 760px) {
+.signInPrompt a {
+  color: #3c8625;
+  font-weight: 700;
+}
+
+.signInPrompt a:hover {
+  color: #245a15;
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .page {
+    grid-template-columns: minmax(250px, 0.7fr) minmax(500px, 1.3fr);
+  }
+
+  .introCopy h1 {
+    font-size: clamp(2.5rem, 5vw, 3.8rem);
+  }
+}
+
+@media (max-width: 700px) {
   .page {
     display: block;
   }
 
-  .hero {
+  .intro {
     display: none;
   }
 
-  .main {
+  .formSection {
     min-height: 100vh;
-    padding: 2rem 1.25rem;
-  }
-
-  .formWrapper {
-    width: min(100%, 27rem);
+    padding: 1.75rem 1.25rem;
   }
 
   .mobileBrand {
     display: inline-flex;
-    margin-bottom: 4.5rem;
+    margin-bottom: 3.5rem;
   }
 }
 
-@media (max-width: 380px) {
-  .main {
+@media (max-width: 460px) {
+  .formSection {
     padding: 1.5rem 1rem;
   }
 
   .mobileBrand {
-    margin-bottom: 3.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: auto;
   }
 }

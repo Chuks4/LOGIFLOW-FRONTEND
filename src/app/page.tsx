@@ -1,67 +1,106 @@
-import Image from "next/image";
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import type { SubmitEvent } from "react";
+import { useRouter } from "next/navigation";
+import { login } from "@/services/axios/auth.service";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSubmitting(true);
+    const formData = new FormData(event.currentTarget);
+
+    try {
+      await login(
+        String(formData.get("email")),
+        String(formData.get("password")),
+      );
+      router.push("/dashboard");
+    } catch {
+      // The Axios response interceptor displays the global error toast.
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      <aside className={styles.hero}>
+        <div className={styles.heroPattern} aria-hidden="true" />
+        <div className={styles.heroContent}>
+          <Link className={styles.brand} href="/" aria-label="LogiFlow home">
+            <span className={styles.brandMark}>L</span>
+            <span>LogiFlow</span>
+          </Link>
+          <div className={styles.heroCopy}>
+            <p className={styles.eyebrow}>Move smarter. Deliver better.</p>
+            <h1>Everything in motion, all in one place.</h1>
+            <p className={styles.heroText}>
+              Manage every shipment, route, and delivery with a clear view of
+              your entire logistics operation.
+            </p>
+          </div>
+          <p className={styles.heroFooter}>Trusted logistics management</p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </aside>
+
+      <main className={styles.main}>
+        <div className={styles.formWrapper}>
+          <div className={styles.mobileBrand}>
+            <span className={styles.brandMark}>L</span>
+            <span>LogiFlow</span>
+          </div>
+          <div className={styles.formHeader}>
+            <p className={styles.formEyebrow}>Welcome back</p>
+            <h2>Sign in to your account</h2>
+            <p>Enter your details to access your logistics dashboard.</p>
+          </div>
+
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.field}>
+              <label htmlFor="email">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@company.com"
+                autoComplete="email"
+                required
+              />
+            </div>
+            <div className={styles.field}>
+              <div className={styles.labelRow}>
+                <label htmlFor="password">Password</label>
+                <Link href="/forgot-password">Forgot password?</Link>
+              </div>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                required
+              />
+            </div>
+            <button
+              className={styles.submitButton}
+              disabled={isSubmitting}
+              type="submit"
+            >
+              {isSubmitting ? "Signing in..." : "Sign in"}
+            </button>
+          </form>
+
+          <p className={styles.registerPrompt}>
+            Don&apos;t have an account?{" "}
+            <Link href="/register">Create an account</Link>
+          </p>
         </div>
       </main>
     </div>
