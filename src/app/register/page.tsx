@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { register } from "@/services/axios/auth.service";
 import styles from "./register.module.css";
 import { type Role, getRoles } from "@/services/axios/roles.service";
+import PasswordField from "@/components/PasswordField";
 
 const genders = [
   { value: "female", label: "Female" },
@@ -15,6 +16,7 @@ const genders = [
 
 export default function RegisterPage() {
   const [roles, setRoles] = useState<Role[] | []>([]);
+  const adminRole = process.env.NEXT_PUBLIC_ADMIN_ROLE;
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -23,7 +25,7 @@ export default function RegisterPage() {
         console.log("Fetched roles", roles.data.data);
         if (roles.status) {
           const filteredRoles = roles.data.data.filter(
-            (role) => role.name !== "super_admin",
+            (role) => role.name !== adminRole,
           );
           setRoles(filteredRoles);
         }
@@ -124,25 +126,23 @@ export default function RegisterPage() {
                   required
                 />
               </div>
-              <div className={styles.field}>
-                <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Create a password"
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                />
-              </div>
+              <PasswordField
+                autoComplete="new-password"
+                className={styles.field}
+                id="password"
+                label="Password"
+                minLength={8}
+                name="password"
+                placeholder="Create a password"
+                required
+              />
               <div className={styles.field}>
                 <label htmlFor="phoneNumber">Phone number</label>
                 <input
                   id="phoneNumber"
                   name="phoneNumber"
                   type="tel"
-                  placeholder="+1 555 000 0000"
+                  placeholder="+2348165678909"
                   autoComplete="tel"
                   required
                 />

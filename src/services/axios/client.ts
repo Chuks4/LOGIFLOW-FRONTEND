@@ -11,9 +11,9 @@ import {
 } from "@/services/axios/auth.service";
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api/v1";
 const REQUEST_TIMEOUT_MS = 15000;
-
+console.log("API URL", API_URL);
 type ApiError = {
   message?: string;
   error?: string;
@@ -40,6 +40,7 @@ const PUBLIC_ENDPOINTS = [
   "/auth/forgot-password",
   "/auth/reset-password",
   "/auth/refresh-token",
+  // "/roles"
 ];
 
 function isPublicEndpoint(url?: string) {
@@ -81,7 +82,7 @@ async function getRefreshAccessToken() {
 }
 
 axiosClient.interceptors.response.use(
-  (response) => response,
+  async (response) => response,
 
   async (error: AxiosError<ApiError>) => {
     const requestConfig = error.config as RetryableRequestConfig | undefined;
@@ -106,7 +107,7 @@ axiosClient.interceptors.response.use(
 
         return axiosClient(requestConfig);
       } catch (refreshError) {
-        clearSession();
+       clearSession();
 
         return Promise.reject(refreshError);
       }

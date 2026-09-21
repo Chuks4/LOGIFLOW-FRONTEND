@@ -17,6 +17,7 @@ type PermissionResponse = {
 };
 
 type TokenPayload = {
+  id: string
   exp?: number;
   roleId?: string;
   userType?: string;
@@ -56,6 +57,7 @@ export async function login(email: string, password: string): Promise<Session> {
     { headers: { Authorization: `Bearer ${accessToken}` } },
   );
   const session: Session = {
+    id: payload.id,
     accessToken,
     userType: role as RoleName,
     roleId: payload.roleId,

@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { SubmitEvent } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/services/axios/auth.service";
+import PasswordField from "@/components/PasswordField";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -74,20 +75,15 @@ export default function Home() {
                 required
               />
             </div>
-            <div className={styles.field}>
-              <div className={styles.labelRow}>
-                <label htmlFor="password">Password</label>
-                <Link href="/forgot-password">Forgot password?</Link>
-              </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                autoComplete="current-password"
-                required
-              />
-            </div>
+            <PasswordField
+              autoComplete="current-password"
+              id="password"
+              label="Password"
+              labelExtra={<Link href="/forgot-password">Forgot password?</Link>}
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
             <button
               className={styles.submitButton}
               disabled={isSubmitting}

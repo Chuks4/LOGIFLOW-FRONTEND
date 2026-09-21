@@ -1,0 +1,91 @@
+.wrap {
+  overflow-x: auto;
+}
+
+.wrap table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.wrap th {
+  padding: 1rem 1.1rem;
+  color: #899287;
+  background: #fbfcfa;
+  font-size: .68rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.wrap td {
+  position: relative;
+  padding: 1rem 1.1rem;
+  border-top: 1px solid #edf0eb;
+  color: #606a5d;
+  font-size: .78rem;
+  vertical-align: middle;
+}
+
+.empty {
+  height: 10rem;
+  color: #899287;
+  text-align: center;
+}
+
+.actions {
+  position: relative;
+  width: 3.5rem;
+  text-align: center;
+}
+
+.actionButton {
+  border: 0;
+  cursor: pointer;
+  color: #687265;
+  background: transparent;
+  font: inherit;
+  font-weight: 750;
+  letter-spacing: .12em;
+}
+
+.actionButton:hover {
+  color: #111512;
+}
+
+.actionMenu {
+  position: absolute;
+  z-index: 2;
+  top: 2.8rem;
+  right: .8rem;
+  width: 11rem;
+  padding: .35rem;
+  border: 1px solid #e2e6df;
+  border-radius: .55rem;
+  background: #fff;
+  box-shadow: 0 .8rem 2rem rgba(17,21,18,.12);
+}
+
+.actionMenu button {
+  width: 100%;
+  padding: .65rem;
+  border: 0;
+  border-radius: .35rem;
+  cursor: pointer;
+  color: #30372e;
+  background: transparent;
+  font: inherit;
+  font-size: .72rem;
+  text-align: left;
+}
+
+.actionMenu button:hover {
+  background: #f0f6ec;
+  color: #245a15;
+}
+
+.actionMenu button:disabled {
+  cursor: not-allowed;
+  opacity: .45;
+}

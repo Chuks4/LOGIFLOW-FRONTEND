@@ -1,6 +1,7 @@
 import type { Permission, RoleName } from "./rbac";
 
 export type Session = {
+  id: string;
   accessToken: string;
   userType: RoleName;
   roleId: string;
@@ -21,12 +22,12 @@ export function readSession(): Session | null {
       return null;
     return session;
   } catch {
-    clearSession();
+    clearSession()
     return null;
   }
 }
 
-export function clearSession() {
+export  function clearSession() {
   window.localStorage.removeItem(SESSION_KEY);
 }
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FiMenu, FiX } from "react-icons/fi";
 
 import { can, roleLabels, visibleNavigation } from "@/lib/rbac";
 import { readSession, type Session } from "@/lib/session";
@@ -22,6 +23,7 @@ export default function DashboardShell({
   const router = useRouter();
 
   const [session, setSession] = useState<Session | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const storedSession = readSession();
@@ -58,11 +60,29 @@ export default function DashboardShell({
 
   return (
     <div className={styles.shell}>
-      <aside className={styles.sidebar}>
+      {isMenuOpen && (
+        <button
+          aria-label="Close dashboard navigation"
+          className={styles.backdrop}
+          onClick={() => setIsMenuOpen(false)}
+          type="button"
+        />
+      )}
+      <aside
+        className={`${styles.sidebar} ${isMenuOpen ? styles.sidebarOpen : ""}`}
+      >
         <Link className={styles.brand} href="/dashboard">
           <span className={styles.brandMark}>L</span>
           <span>LogiFlow</span>
         </Link>
+        <button
+          aria-label="Close dashboard navigation"
+          className={styles.closeMenu}
+          onClick={() => setIsMenuOpen(false)}
+          type="button"
+        >
+          <FiX aria-hidden="true" />
+        </button>
         <p className={styles.menuLabel}>Dashboard</p>
         <nav className={styles.nav} aria-label="Dashboard navigation">
           {items.map((item) => (
@@ -70,6 +90,7 @@ export default function DashboardShell({
               className={`${styles.navItem} ${pathname === item.href ? styles.active : ""}`}
               href={item.href}
               key={item.href}
+              onClick={() => setIsMenuOpen(false)}
             >
               {item.label}
             </Link>
@@ -81,17 +102,34 @@ export default function DashboardShell({
       </aside>
       <main className={styles.content}>
         <header className={styles.header}>
-          <div>
-            <p className={styles.kicker}>Your dashboard</p>
-            <h1>Welcome back!</h1>
+          <div className={styles.headerTitle}>
+            <button
+              aria-expanded={isMenuOpen}
+              aria-label={
+                isMenuOpen
+                  ? "Close dashboard navigation"
+                  : "Open dashboard navigation"
+              }
+              className={styles.menuButton}
+              onClick={() => setIsMenuOpen((open) => !open)}
+              type="button"
+            >
+              {isMenuOpen ? (
+                <FiX aria-hidden="true" />
+              ) : (
+                <FiMenu aria-hidden="true" />
+              )}
+            </button>
+            <div>
+              <p className={styles.kicker}>Your dashboard</p>
+              <h1>Welcome back!</h1>
+            </div>
           </div>
           <div className={styles.user}>
             <span className={styles.avatar}>
-              {roleLabels[session.userType]}
-            </span>
-            <span>
               {roleLabels[session.userType].toUpperCase().slice(0, 3)}
             </span>
+            <span>{roleLabels[session.userType]}</span>
           </div>
         </header>
         {can(session.permissions, "dashboard", "read") ? (

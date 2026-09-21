@@ -24,7 +24,7 @@
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
   margin-top: 3rem;
 }
@@ -53,9 +53,125 @@
   font-size: 0.7rem;
 }
 
+.shipments {
+  margin-top: 3rem;
+}
+
+.shipmentsHeader h3 {
+  margin-top: 0.55rem;
+  color: #111512;
+  font-size: 1.35rem;
+  letter-spacing: -0.04em;
+}
+
+.tableCard {
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid #e2e6df;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.35rem 0.55rem;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.statusPending { color: #80651b; background: #fff4cf; }
+.statusAssigned { color: #315a86; background: #e8f1fc; }
+.statusPickedUp { color: #16706f; background: #e0f6f3; }
+.statusInTransit { color: #4e3b8e; background: #eeeafd; }
+.statusDelivered { color: #28723a; background: #e5f7e8; }
+.statusConfirmed { color: #176b58; background: #def5eb; }
+.statusReturned { color: #9a5718; background: #fff0dc; }
+.statusCancelled { color: #923e32; background: #fce9e6; }
+.statusDefault { color: #566052; background: #eef1ed; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.2rem;
+}
+
+.search {
+  width: min(100%, 25rem);
+}
+
+.search input {
+  width: 100%;
+  min-height: 2.8rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #dce1d9;
+  border-radius: 0.55rem;
+  outline: none;
+  background: #fff;
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.search input:focus {
+  border-color: #67ad42;
+  box-shadow: 0 0 0 3px rgba(103, 173, 66, 0.15);
+}
+
+.total,
+.muted {
+  color: #899287;
+  font-size: 0.78rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.cellTitle,
+.cellSubtitle {
+  display: block;
+}
+
+.cellTitle {
+  color: #20271f;
+  font-size: 0.8rem;
+}
+
+.cellSubtitle {
+  margin-top: 0.3rem;
+  color: #899287;
+  font-size: 0.7rem;
+}
+
+
+@media (max-width: 650px) {
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .search {
+    width: 100%;
+  }
+  .total {
+    align-self: flex-end;
+  }
+}
+
 @media (max-width: 760px) {
   .stats {
     grid-template-columns: 1fr;
     margin-top: 2rem;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1050px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

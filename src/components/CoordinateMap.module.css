@@ -1,0 +1,3 @@
+.map { display: grid; gap: .4rem; margin-top: .75rem; }
+.container { width: 100%; height: 12rem; border-radius: .5rem; }
+.map p { color: #899287; font-size: .7rem; }

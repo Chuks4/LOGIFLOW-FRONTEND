@@ -1,0 +1,44 @@
+.page { max-width: 62rem; padding-top: 2.5rem; }
+.back { color: #3c8625; font-size: .8rem; font-weight: 700; }
+.header { margin-top: 2rem; }
+.kicker { color: #3c8625; font-size: .7rem; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+.header h2 { margin-top: .55rem; font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -.06em; }
+.header p:last-child { margin-top: .6rem; color: #737b70; font-size: .9rem; }
+.steps { display: flex; gap: .5rem; margin-top: 1.75rem; }
+.step, .stepActive { display: flex; align-items: center; gap: .45rem; color: #899287; font-size: .75rem; font-weight: 700; }
+.step span, .stepActive span { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; color: #899287; background: #e9ede7; font-size: .68rem; }
+.stepActive { color: #245a15; }
+.stepActive span { color: #0d140b; background: #9be85b; }
+.form { margin-top: 1.25rem; padding: 1.5rem; border: 1px solid #e2e6df; border-radius: .8rem; background: #fff; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.15rem 1rem; }
+.locationGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.location { min-width: 0; margin: 0; padding: 1rem; border: 1px solid #e2e6df; border-radius: .65rem; }
+.location legend { padding: 0 .35rem; color: #245a15; font-size: .8rem; font-weight: 750; }
+.coordinateGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-top: .85rem; }
+.field { display: grid; gap: .5rem; }
+.addressSearch { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: .6rem; }
+.addressSearch button { min-height: 3rem; padding: .7rem .8rem; border: 0; border-radius: .6rem; cursor: pointer; color: #0d140b; background: #9be85b; font: inherit; font-size: .75rem; font-weight: 750; }
+.addressSearch button:disabled { cursor: wait; opacity: .6; }
+.field label, .checkField { color: #30372e; font-size: .78rem; font-weight: 650; }
+.field input, .field select, .field textarea { width: 100%; min-height: 3rem; padding: .75rem .9rem; border: 1px solid #dce1d9; border-radius: .6rem; outline: none; color: #111512; background: #fff; font: inherit; font-size: .84rem; }
+.field textarea { resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #67ad42; box-shadow: 0 0 0 3px rgba(103,173,66,.15); }
+.hint { margin-top: .85rem; color: #899287; font-size: .75rem; }
+.quote { display: grid; gap: .3rem; margin-top: 1.25rem; padding: 1rem; border: 1px solid #cfe8c1; border-radius: .65rem; color: #315a27; background: #f1faed; }
+.quote strong { color: #173d0f; font-size: 1.5rem; }
+.quote small { color: #6c8067; font-size: .72rem; }
+.actions { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px solid #e2e6df; }
+.actions button, .secondaryButton { min-height: 2.9rem; padding: .7rem 1rem; border: 0; border-radius: .6rem; cursor: pointer; color: #0d140b; background: #9be85b; font: inherit; font-size: .8rem; font-weight: 750; }
+.actions button:disabled { cursor: wait; opacity: .6; }
+.cancel { padding: .75rem 1rem; border: 0; color: #657061; background: transparent; font-size: .8rem; font-weight: 700; }
+.itemHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.itemHeader h3 { color: #20271f; font-size: 1rem; }
+.itemHeader p { margin-top: .35rem; color: #899287; font-size: .75rem; }
+.secondaryButton { min-height: 2.4rem; padding: .55rem .8rem; }
+.items { display: grid; gap: 1rem; margin-top: 1.25rem; }
+.item { padding: 1rem; border: 1px solid #e2e6df; border-radius: .65rem; }
+.itemTitle { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; color: #30372e; font-size: .8rem; }
+.itemTitle button { border: 0; cursor: pointer; color: #923e32; background: transparent; font: inherit; font-size: .75rem; }
+.checkField { display: flex; align-items: center; gap: .55rem; align-self: end; min-height: 3rem; }
+.checkField input { width: 1rem; height: 1rem; accent-color: #3c8625; }
+@media (max-width: 650px) { .locationGrid, .grid { grid-template-columns: 1fr; } .coordinateGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .addressSearch { grid-template-columns: 1fr; } .form { padding: 1rem; } .steps { flex-wrap: wrap; } .itemHeader { align-items: stretch; flex-direction: column; } .secondaryButton { align-self: flex-start; } }

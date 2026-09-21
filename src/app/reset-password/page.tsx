@@ -6,6 +6,7 @@ import type { SubmitEvent } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { resetPassword } from "@/services/axios/auth.service";
+import PasswordField from "@/components/PasswordField";
 import styles from "./reset-password.module.css";
 
 export default function ResetPasswordPage() {
@@ -55,25 +56,23 @@ export default function ResetPasswordPage() {
           account protected.
         </p>
         <form className={styles.form} onSubmit={handleSubmit}>
-          <label htmlFor="newPassword">New password</label>
-          <input
+          <PasswordField
             autoComplete="new-password"
             id="newPassword"
+            label="New password"
             minLength={8}
             name="newPassword"
             placeholder="At least 8 characters"
             required
-            type="password"
           />
-          <label htmlFor="confirmPassword">Confirm password</label>
-          <input
+          <PasswordField
             autoComplete="new-password"
             id="confirmPassword"
+            label="Confirm password"
             minLength={8}
             name="confirmPassword"
             placeholder="Re-enter your password"
             required
-            type="password"
           />
           <button disabled={isSubmitting || !token} type="submit">
             {isSubmitting ? "Updating..." : "Reset password"}
