@@ -45,6 +45,7 @@ export async function login(email: string, password: string): Promise<Session> {
     password,
   });
   const accessToken = getAccessToken(response.data);
+  console.log("Login accessToken", accessToken);
   const payload = decodeToken(accessToken);
   const role = normalizeRole(payload.userType);
 
@@ -89,6 +90,19 @@ export async function refreshAccessToken() {
   const session = readSession();
   if (session) saveSession({ ...session, accessToken });
   return accessToken;
+}
+
+export async function getValidAccessToken() {
+  const session = readSession();
+  if (!session) {
+    throw new Error("Your session has expired. Please sign in again.");
+  }
+
+  if (tokenExpiresAt(session.accessToken) * 1000 <= Date.now()) {
+    return refreshAccessToken();
+  }
+
+  return session.accessToken;
 }
 
 export function tokenExpiresAt(token: string) {

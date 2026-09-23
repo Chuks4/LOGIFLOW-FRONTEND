@@ -3,14 +3,59 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { SubmitEvent } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/services/axios/auth.service";
+import {
+  login,
+  refreshAccessToken,
+  tokenExpiresAt,
+} from "@/services/axios/auth.service";
 import PasswordField from "@/components/PasswordField";
+import { clearSession, readSession } from "@/lib/session";
 import styles from "./page.module.css";
 
 export default function Home() {
   const router = useRouter();
+  const [isRestoringSession, setIsRestoringSession] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function restoreSession() {
+      const session = readSession();
+
+      if (!session) {
+        if (isCurrent) setIsRestoringSession(false);
+        return;
+      }
+
+      try {
+        if (tokenExpiresAt(session.accessToken) * 1000 <= Date.now()) {
+          await refreshAccessToken();
+        }
+
+        if (isCurrent) router.replace("/dashboard");
+      } catch {
+        clearSession();
+        if (isCurrent) setIsRestoringSession(false);
+      }
+    }
+
+    void restoreSession();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [router]);
+
+  if (isRestoringSession) {
+    return (
+      <main className={styles.sessionLoading} aria-live="polite">
+        Restoring your session...
+      </main>
+    );
+  }
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -3,10 +3,20 @@
 import { useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
-import type { LatLngExpression } from "leaflet";
-import { readSession } from "@/lib/session";
+import { divIcon, type LatLngExpression } from "leaflet";
+import { renderToStaticMarkup } from "react-dom/server";
+import { MdDirectionsBike } from "react-icons/md"
+
+import { getValidAccessToken } from "@/services/axios/auth.service";
 import styles from "./LiveTracking.module.css";
 import { useRouter } from "next/navigation";
+
+const trackingIcon = divIcon({
+  className: styles.trackingMarker,
+  html: renderToStaticMarkup(<MdDirectionsBike aria-hidden="true" />),
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+});
 
 type Location = {
   latitude: number;
@@ -25,13 +35,16 @@ type LiveTrackingProps = {
 
 function FollowMarker({ location }: { location: Location }) {
   const map = useMap();
-  const position: LatLngExpression = [location.latitude, location.longitude];
-
   useEffect(() => {
-    map.setView(position);
+    map.setView([location.latitude, location.longitude]);
   }, [map, location.latitude, location.longitude]);
 
-  return <Marker position={position} />;
+  return (
+    <Marker
+      icon={trackingIcon}
+      position={[location.latitude, location.longitude]}
+    />
+  );
 }
 
 function socketUrl() {
@@ -49,33 +62,39 @@ export default function LiveTracking({
   const router = useRouter();
 
   useEffect(() => {
-    const token = readSession()?.accessToken;
-    if (!token) {
-      setError("Your session has expired. Please sign in again.");
-      return router.push("/");
-    }
+    let socket: Socket | null = null;
+    let cancelled = false;
 
-    const socket: Socket = io(socketUrl(), {
-      auth: { token },
-    });
+    void getValidAccessToken()
+      .then((token) => {
+        if (cancelled) return;
+        socket = io(socketUrl(), { auth: { token } });
 
-    socket.on("connect", () => {
-      socket.emit("join-shipment", { shipmentId });
-    });
-    socket.on("receive-location", (data: { location?: Location }) => {
-      if (data.location) setLocation(data.location);
-    });
-    socket.on("tracking-error", (data: { message?: string }) => {
-      setError(data.message ?? "Unable to track this shipment.");
-    });
-    socket.on("connect_error", () => {
-      setError("Unable to connect to live tracking.");
-    });
+        socket.on("connect", () => {
+          socket?.emit("join-shipment", { shipmentId });
+        });
+        socket.on("receive-location", (data: { location?: Location }) => {
+          if (data.location) setLocation(data.location);
+        });
+        socket.on("tracking-error", (data: { message?: string }) => {
+          setError(data.message ?? "Unable to track this shipment.");
+        });
+        socket.on("connect_error", () => {
+          setError("Unable to connect to live tracking.");
+        });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError("Your session has expired. Please sign in again.");
+          router.push("/");
+        }
+      });
 
     return () => {
-      socket.disconnect();
+      cancelled = true;
+      socket?.disconnect();
     };
-  }, [shipmentId]);
+  }, [router, shipmentId]);
 
   const position: LatLngExpression = location
     ? [location.latitude, location.longitude]

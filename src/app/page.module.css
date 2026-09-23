@@ -5,6 +5,15 @@
   background: #f7f8f5;
 }
 
+.sessionLoading {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  color: #4d574a;
+  background: #f7f8f5;
+  font-size: 0.9rem;
+}
+
 .hero {
   position: relative;
   overflow: hidden;

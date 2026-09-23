@@ -40,7 +40,7 @@ const PUBLIC_ENDPOINTS = [
   "/auth/forgot-password",
   "/auth/reset-password",
   "/auth/refresh-token",
-  // "/roles"
+  "/auth/logout",
 ];
 
 function isPublicEndpoint(url?: string) {
@@ -58,6 +58,7 @@ axiosClient.interceptors.request.use(async (config) => {
     const tokenIsExpired = tokenExpiresAt(accessToken) * 1000 <= Date.now();
 
     if (tokenIsExpired) {
+      console.log("Not a public endpoint, adding auth header", config.url);
       const refreshedAccessToken = await getRefreshAccessToken();
 
       config.headers.Authorization = `Bearer ${refreshedAccessToken}`;
@@ -107,7 +108,7 @@ axiosClient.interceptors.response.use(
 
         return axiosClient(requestConfig);
       } catch (refreshError) {
-       clearSession();
+        clearSession();
 
         return Promise.reject(refreshError);
       }

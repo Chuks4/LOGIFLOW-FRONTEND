@@ -7,6 +7,8 @@ import DataTable, {
   type TableAction,
   type TableColumn,
 } from "@/components/DataTable";
+import DashboardShipmentsTable from "@/components/DashboardShipmentsTable";
+import DriverLocationShare from "@/components/DriverLocationShare";
 import Pagination from "@/components/Pagination";
 import { can } from "@/lib/rbac";
 import { readSession } from "@/lib/session";
@@ -41,12 +43,15 @@ export default function ShipmentsPage() {
   const [trackingShipment, setTrackingShipment] = useState<Shipment | null>(
     null,
   );
+  const [sharingShipment, setSharingShipment] = useState<Shipment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const canCreate = can(
     readSession()?.permissions ?? [],
     "shipments",
     "create",
   );
+  const session = readSession();
+  const isDriver = session?.userType === "driver";
 
   const loadShipments = useCallback(async () => {
     setIsLoading(true);
@@ -55,7 +60,9 @@ export default function ShipmentsPage() {
         page,
         limit: PAGE_SIZE,
         keyword,
-        customerId: readSession()?.id ?? "",
+        ...(isDriver
+          ? { driverId: session?.id ?? "" }
+          : { customerId: session?.id ?? "" }),
       });
       setShipments(result.data);
       setTotalItems(result.totalItems);
@@ -66,7 +73,7 @@ export default function ShipmentsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [keyword, page]);
+  }, [isDriver, keyword, page, session?.id]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -145,6 +152,15 @@ export default function ShipmentsPage() {
       label: "View details",
       onClick: (shipment) => void viewShipment(shipment.id),
     },
+    {
+      key: "share-location",
+      label: "Share my location",
+      hidden: () => !isDriver,
+      onClick: (shipment) => setSharingShipment(shipment),
+      disabled: (shipment) =>
+        !isDriver &&
+        !["Assigned", "Picked Up", "In Transit"].includes(shipment.status),
+    },
   ];
 
   return (
@@ -153,7 +169,11 @@ export default function ShipmentsPage() {
         <div>
           <p className={styles.kicker}>Operations</p>
           <h2>Shipments</h2>
-          <p>Track and manage every delivery in your dashboard.</p>
+          <p>
+            {isDriver
+              ? "Review shipments assigned to you and keep deliveries moving."
+              : "Track and manage every delivery in your dashboard."}
+          </p>
         </div>
         {canCreate && (
           <Link
@@ -165,41 +185,61 @@ export default function ShipmentsPage() {
         )}
       </div>
 
-      <div className={styles.toolbar}>
-        <label className={styles.search}>
-          <span className={styles.srOnly}>Search shipments</span>
-          <input
-            onChange={(event) => search(event.target.value)}
-            placeholder="Search by tracking number or recipient"
-            type="search"
-            value={keyword}
-          />
-        </label>
-        <span className={styles.total}>{totalItems} shipments</span>
-      </div>
-
-      <div className={styles.tableCard}>
-        <DataTable
-          columns={columns}
-          data={shipments}
-          emptyMessage="You have not created any shipments yet."
-          getRowKey={(shipment) => shipment.id}
+      {isDriver ? (
+        <DashboardShipmentsTable
           actions={actions}
+          columns={columns}
+          emptyMessage="No shipments are currently assigned to you."
           isLoading={isLoading}
-          loadingLabel="Loading shipments..."
-        />
-        <Pagination
-          currentPage={page}
           onPageChange={setPage}
+          onSearch={search}
+          page={page}
+          searchPlaceholder="Search tracking number or recipient"
+          searchValue={keyword}
+          shipments={shipments}
+          totalItems={totalItems}
           totalPages={totalPages}
         />
-      </div>
+      ) : (
+        <>
+          <div className={styles.toolbar}>
+            <label className={styles.search}>
+              <span className={styles.srOnly}>Search shipments</span>
+              <input
+                onChange={(event) => search(event.target.value)}
+                placeholder="Search by tracking number or recipient"
+                type="search"
+                value={keyword}
+              />
+            </label>
+            <span className={styles.total}>{totalItems} shipments</span>
+          </div>
+
+          <div className={styles.tableCard}>
+            <DataTable
+              columns={columns}
+              data={shipments}
+              emptyMessage="You have not created any shipments yet."
+              getRowKey={(shipment) => shipment.id}
+              actions={actions}
+              isLoading={isLoading}
+              loadingLabel="Loading shipments..."
+            />
+            <Pagination
+              currentPage={page}
+              onPageChange={setPage}
+              totalPages={totalPages}
+            />
+          </div>
+        </>
+      )}
 
       {selectedShipment && (
         <ShipmentDetails
           shipment={selectedShipment}
           onClose={() => setSelectedShipment(null)}
           onTrack={() => setTrackingShipment(selectedShipment)}
+          isDriver={isDriver}
         />
       )}
       {trackingShipment && (
@@ -207,6 +247,13 @@ export default function ShipmentsPage() {
           onClose={() => setTrackingShipment(null)}
           shipmentId={trackingShipment.id}
           trackingNumber={trackingShipment.trackingNumber}
+        />
+      )}
+      {sharingShipment && (
+        <DriverLocationShare
+          onClose={() => setSharingShipment(null)}
+          shipmentId={sharingShipment.id}
+          trackingNumber={sharingShipment.trackingNumber}
         />
       )}
     </section>
@@ -217,10 +264,12 @@ function ShipmentDetails({
   shipment,
   onClose,
   onTrack,
+  isDriver,
 }: {
   shipment: Shipment;
   onClose: () => void;
   onTrack: () => void;
+  isDriver: boolean;
 }) {
   const history: ShipmentHistory[] = shipment.shipmentStatusHistory ?? [];
 
@@ -275,9 +324,15 @@ function ShipmentDetails({
             <strong>₦ {Number(shipment.estimatedCost).toLocaleString()}</strong>
           </div>
         </div>
-        <button className={styles.trackButton} onClick={onTrack} type="button">
-          Track shipment live
-        </button>
+        {!isDriver && (
+          <button
+            className={styles.trackButton}
+            onClick={onTrack}
+            type="button"
+          >
+            Track shipment live
+          </button>
+        )}
         <h4>Status history</h4>
         <div className={styles.timeline}>
           {history.length === 0 ? (

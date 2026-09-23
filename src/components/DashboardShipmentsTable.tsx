@@ -1,6 +1,9 @@
 "use client";
 
-import DataTable, { type TableColumn } from "@/components/DataTable";
+import DataTable, {
+  type TableAction,
+  type TableColumn,
+} from "@/components/DataTable";
 import Pagination from "@/components/Pagination";
 import type { Shipment } from "@/services/axios/shipments.service";
 import styles from "./DashboardShipmentsTable.module.css";
@@ -17,6 +20,7 @@ type DashboardShipmentsTableProps = {
   searchValue: string;
   searchPlaceholder: string;
   emptyMessage: string;
+  actions?: TableAction<Shipment>[];
 };
 
 export default function DashboardShipmentsTable({
@@ -31,6 +35,7 @@ export default function DashboardShipmentsTable({
   searchValue,
   searchPlaceholder,
   emptyMessage,
+  actions = [],
 }: DashboardShipmentsTableProps) {
   return (
     <>
@@ -52,6 +57,7 @@ export default function DashboardShipmentsTable({
           data={shipments}
           emptyMessage={emptyMessage}
           getRowKey={(shipment) => shipment.id}
+          actions={actions}
           isLoading={isLoading}
           loadingLabel="Loading shipments..."
         />
