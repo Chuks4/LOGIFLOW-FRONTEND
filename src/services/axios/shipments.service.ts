@@ -112,6 +112,16 @@ export type PaymentInitialization = {
   access_code: string;
 };
 
+export async function updateShipmentStatus(
+  id: string,
+  status: "In Transit" | "Delivered" | "Picked Up",
+) {
+  const response = await axiosClient.put<ShipmentResponse>(`/shipments/${id}`, {
+    status,
+  });
+  return response.data.data;
+}
+
 export async function initializeShipmentPayment(
   shipmentId: string,
   amount: number,

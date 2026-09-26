@@ -15,11 +15,13 @@ import { readSession } from "@/lib/session";
 import {
   getShipment,
   getShipments,
+  updateShipmentStatus,
   type Shipment,
   type ShipmentHistory,
 } from "@/services/axios/shipments.service";
 import styles from "./shipments.module.css";
 import { formatDate } from "../../../utils/utils";
+import toast from "react-hot-toast";
 
 const LiveTracking = dynamic(() => import("@/components/LiveTracking"), {
   ssr: false,
@@ -272,6 +274,23 @@ function ShipmentDetails({
   isDriver: boolean;
 }) {
   const history: ShipmentHistory[] = shipment.shipmentStatusHistory ?? [];
+  const [shipmentStatus, setShipmentStatus] = useState(shipment.status);
+
+  const setStatus = async (
+    status: "In Transit" | "Delivered" | "Picked Up",
+  ) => {
+    try {
+      await updateShipmentStatus(shipment.id, status);
+      setShipmentStatus(status);
+      toast.success("Shipment status updated successfully");
+    } catch (error) {
+      // The Axios interceptor displays the API error toast.
+    }
+  };
+
+  useEffect(() => {
+    setShipmentStatus(shipment.status);
+  }, [shipment.status]);
 
   return (
     <div className={styles.overlay} onClick={onClose} role="presentation">
@@ -323,6 +342,24 @@ function ShipmentDetails({
             <span>Estimated cost</span>
             <strong>₦ {Number(shipment.estimatedCost).toLocaleString()}</strong>
           </div>
+
+          {isDriver && (
+            <div className={styles.field}>
+              <label htmlFor="update-shipment">Update shipment status</label>
+              <select
+                id="update-shipment"
+                onChange={(value) => setStatus(value.target.value as any)}
+                required
+                value={shipmentStatus}
+              >
+                <option value="">Select an option</option>
+                <option value="Assigned">Assigned</option>
+                <option value="Picked Up">Picked Up</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Delivered">Delivered</option>
+              </select>
+            </div>
+          )}
         </div>
         {!isDriver && (
           <button
@@ -333,6 +370,7 @@ function ShipmentDetails({
             Track shipment live
           </button>
         )}
+
         <h4>Status history</h4>
         <div className={styles.timeline}>
           {history.length === 0 ? (

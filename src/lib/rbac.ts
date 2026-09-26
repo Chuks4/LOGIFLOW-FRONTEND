@@ -48,6 +48,12 @@ export const navigation: NavigationItem[] = [
     action: "read",
   },
   {
+    label: "Settings",
+    href: "/dashboard/settings",
+    resource: "dashboard",
+    action: "read",
+  },
+  {
     label: "Reports",
     href: "/dashboard/reports",
     resource: "reports",

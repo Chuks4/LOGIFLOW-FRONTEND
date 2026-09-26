@@ -1,0 +1,129 @@
+.page {
+  padding-top: 2.5rem;
+}
+.header h2 {
+  margin-top: 0.55rem;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: -0.06em;
+}
+.header > p:last-child {
+  margin-top: 0.6rem;
+  color: #737b70;
+  font-size: 0.9rem;
+}
+.kicker {
+  color: #3c8625;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2.2rem;
+}
+.card {
+  display: grid;
+  gap: 1.4rem;
+  padding: 1.5rem;
+  border: 1px solid #e2e6df;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+.card h3 {
+  color: #111512;
+  font-size: 1.1rem;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.fields label {
+  display: grid;
+  gap: 0.5rem;
+  color: #30372e;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+.fields .full {
+  grid-column: 1/-1;
+}
+.fields input,
+.fields select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.9rem;
+  min-height: 2.9rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #dce1d9;
+  border-radius: 0.55rem;
+  outline: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.2;
+  background: #fff;
+  vertical-align: middle;
+}
+.fields select {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.fields input:focus,
+.fields select:focus {
+  border-color: #67ad42;
+  box-shadow: 0 0 0 3px rgba(103, 173, 66, 0.15);
+}
+.fields select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.passwordFields {
+  display: grid;
+  gap: 1rem;
+}
+.primary {
+  box-sizing: border-box;
+  display: inline-flex;
+  height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  color: #0d140b;
+  background: #9be85b;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-align: center;
+  white-space: nowrap;
+}
+.primary:hover {
+  background: #b0f276;
+}
+.primary:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.muted {
+  color: #899287;
+  font-size: 0.82rem;
+}
+@media (max-width: 800px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 550px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+  .fields .full {
+    grid-column: auto;
+  }
+}
