@@ -7,6 +7,7 @@ import { FiMenu, FiX } from "react-icons/fi";
 
 import { can, roleLabels, visibleNavigation } from "@/lib/rbac";
 import { readSession, type Session } from "@/lib/session";
+import Notifications from "@/components/Notifications";
 
 import {
   logout,
@@ -126,6 +127,7 @@ export default function DashboardShell({
             </div>
           </div>
           <div className={styles.user}>
+            <Notifications />
             <span className={styles.avatar}>
               {roleLabels[session.userType].toUpperCase().slice(0, 3)}
             </span>

@@ -104,7 +104,7 @@ export default function DriverLocationShare({
       watchId = navigator.geolocation.watchPosition(
         shareLocation,
         locationError,
-        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 },
       );
     }
 
