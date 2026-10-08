@@ -3,6 +3,7 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
+import type { SubmitEvent } from "react";
 import DataTable, {
   type TableAction,
   type TableColumn,
@@ -12,7 +13,9 @@ import DriverLocationShare from "@/components/DriverLocationShare";
 import Pagination from "@/components/Pagination";
 import { can } from "@/lib/rbac";
 import { readSession } from "@/lib/session";
+import { getDrivers, type DriverOption } from "@/services/axios/users.service";
 import {
+  assignShipmentDriver,
   getShipment,
   getShipments,
   updateShipmentStatus,
@@ -46,14 +49,23 @@ export default function ShipmentsPage() {
     null,
   );
   const [sharingShipment, setSharingShipment] = useState<Shipment | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const canCreate = can(
-    readSession()?.permissions ?? [],
-    "shipments",
-    "create",
+  const [assignmentShipment, setAssignmentShipment] = useState<Shipment | null>(
+    null,
   );
+  const [drivers, setDrivers] = useState<DriverOption[]>([]);
+  const [driverId, setDriverId] = useState("");
+  const [isLoadingDrivers, setIsLoadingDrivers] = useState(false);
+  const [isAssigningDriver, setIsAssigningDriver] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const session = readSession();
-  const isDriver = session?.userType === "driver";
+  const canCreate = can(session?.permissions ?? [], "shipments", "create");
+  const canAssignDriver = can(
+    session?.permissions ?? [],
+    "shipments",
+    "assign",
+  );
+  const isDriver = session?.userType === process.env.NEXT_PUBLIC_DRIVER_ROLE;
+  const isAdmin = session?.userType === process.env.NEXT_PUBLIC_ADMIN_ROLE;
 
   const loadShipments = useCallback(async () => {
     setIsLoading(true);
@@ -62,9 +74,11 @@ export default function ShipmentsPage() {
         page,
         limit: PAGE_SIZE,
         keyword,
-        ...(isDriver
-          ? { driverId: session?.id ?? "" }
-          : { customerId: session?.id ?? "" }),
+        ...(isAdmin
+          ? {}
+          : isDriver
+            ? { driverId: session?.id ?? "" }
+            : { customerId: session?.id ?? "" }),
       });
       setShipments(result.data);
       setTotalItems(result.totalItems);
@@ -75,7 +89,7 @@ export default function ShipmentsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [isDriver, keyword, page, session?.id]);
+  }, [isAdmin, isDriver, keyword, page, session?.id]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -90,6 +104,37 @@ export default function ShipmentsPage() {
       setSelectedShipment(await getShipment(id));
     } catch {
       // The Axios interceptor displays the API error toast.
+    }
+  }
+
+  async function openDriverAssignment(shipment: Shipment) {
+    setAssignmentShipment(shipment);
+    setDriverId("");
+    setDrivers([]);
+    setIsLoadingDrivers(true);
+    try {
+      setDrivers(await getDrivers());
+    } catch {
+      // The Axios interceptor displays the API error toast.
+    } finally {
+      setIsLoadingDrivers(false);
+    }
+  }
+
+  async function submitDriverAssignment(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!assignmentShipment || !driverId || isAssigningDriver) return;
+
+    setIsAssigningDriver(true);
+    try {
+      await assignShipmentDriver(assignmentShipment.id, driverId);
+      toast.success("Driver assigned to shipment.");
+      setAssignmentShipment(null);
+      await loadShipments();
+    } catch {
+      // The Axios interceptor displays the API error toast.
+    } finally {
+      setIsAssigningDriver(false);
     }
   }
 
@@ -155,12 +200,22 @@ export default function ShipmentsPage() {
       onClick: (shipment) => void viewShipment(shipment.id),
     },
     {
+      key: "assign-driver",
+      label: "Assign driver",
+      hidden: () => !canAssignDriver || !isAdmin,
+      disabled: (shipment) =>
+        isAdmin &&
+        ["Pending", "Delivered", "In Transit"].includes(shipment.status),
+
+      onClick: (shipment) => void openDriverAssignment(shipment),
+    },
+    {
       key: "share-location",
       label: "Share my location",
       hidden: () => !isDriver,
       onClick: (shipment) => setSharingShipment(shipment),
       disabled: (shipment) =>
-        !isDriver &&
+        isDriver &&
         !["Assigned", "Picked Up", "In Transit"].includes(shipment.status),
     },
   ];
@@ -258,7 +313,118 @@ export default function ShipmentsPage() {
           trackingNumber={sharingShipment.trackingNumber}
         />
       )}
+      {assignmentShipment && (
+        <DriverAssignmentModal
+          drivers={drivers}
+          isLoadingDrivers={isLoadingDrivers}
+          isSaving={isAssigningDriver}
+          onClose={() => {
+            if (!isAssigningDriver) setAssignmentShipment(null);
+          }}
+          onDriverChange={setDriverId}
+          onSubmit={submitDriverAssignment}
+          shipment={assignmentShipment}
+          driverId={driverId}
+        />
+      )}
     </section>
+  );
+}
+
+function DriverAssignmentModal({
+  shipment,
+  drivers,
+  driverId,
+  isLoadingDrivers,
+  isSaving,
+  onClose,
+  onDriverChange,
+  onSubmit,
+}: {
+  shipment: Shipment;
+  drivers: DriverOption[];
+  driverId: string;
+  isLoadingDrivers: boolean;
+  isSaving: boolean;
+  onClose: () => void;
+  onDriverChange: (driverId: string) => void;
+  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
+}) {
+  return (
+    <div className={styles.modalOverlay} onClick={onClose} role="presentation">
+      <section
+        aria-labelledby="assign-driver-title"
+        aria-modal="true"
+        className={styles.assignmentModal}
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+      >
+        <header className={styles.modalHeader}>
+          <div>
+            <p className={styles.kicker}>Shipment assignment</p>
+            <h3 id="assign-driver-title">Assign a driver</h3>
+            <p>{shipment.trackingNumber}</p>
+          </div>
+          <button
+            aria-label="Close driver assignment"
+            className={styles.closeButton}
+            disabled={isSaving}
+            onClick={onClose}
+            type="button"
+          >
+            x
+          </button>
+        </header>
+
+        <form className={styles.assignmentForm} onSubmit={onSubmit}>
+          <label className={styles.assignmentField} htmlFor="shipment-driver">
+            Select driver
+            <select
+              id="shipment-driver"
+              disabled={isLoadingDrivers || isSaving || drivers.length === 0}
+              onChange={(event) => onDriverChange(event.target.value)}
+              required
+              value={driverId}
+            >
+              <option value="">
+                {isLoadingDrivers
+                  ? "Loading drivers..."
+                  : drivers.length === 0
+                    ? "No drivers available"
+                    : "Choose a driver"}
+              </option>
+              {drivers.map((driver) => (
+                <option key={driver.id} value={driver.id}>
+                  {driver.firstName} {driver.lastName}
+                </option>
+              ))}
+            </select>
+          </label>
+          {!isLoadingDrivers && drivers.length === 0 && (
+            <p className={styles.assignmentHint}>
+              No drivers are available to assign.
+            </p>
+          )}
+          <footer className={styles.assignmentActions}>
+            <button
+              className={styles.cancelButton}
+              disabled={isSaving}
+              onClick={onClose}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className={styles.confirmButton}
+              disabled={!driverId || isLoadingDrivers || isSaving}
+              type="submit"
+            >
+              {isSaving ? "Assigning..." : "Assign driver"}
+            </button>
+          </footer>
+        </form>
+      </section>
+    </div>
   );
 }
 
@@ -283,13 +449,17 @@ function ShipmentDetails({
       await updateShipmentStatus(shipment.id, status);
       setShipmentStatus(status);
       toast.success("Shipment status updated successfully");
-    } catch (error) {
+    } catch {
       // The Axios interceptor displays the API error toast.
     }
   };
 
   useEffect(() => {
-    setShipmentStatus(shipment.status);
+    const timeoutId = window.setTimeout(
+      () => setShipmentStatus(shipment.status),
+      0,
+    );
+    return () => window.clearTimeout(timeoutId);
   }, [shipment.status]);
 
   return (
@@ -348,12 +518,18 @@ function ShipmentDetails({
               <label htmlFor="update-shipment">Update shipment status</label>
               <select
                 id="update-shipment"
-                onChange={(value) => setStatus(value.target.value as any)}
+                onChange={(event) =>
+                  setStatus(
+                    event.target.value as
+                      | "In Transit"
+                      | "Delivered"
+                      | "Picked Up",
+                  )
+                }
                 required
                 value={shipmentStatus}
               >
                 <option value="">Select an option</option>
-                <option value="Assigned">Assigned</option>
                 <option value="Picked Up">Picked Up</option>
                 <option value="In Transit">In Transit</option>
                 <option value="Delivered">Delivered</option>

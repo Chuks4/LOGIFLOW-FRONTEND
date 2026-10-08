@@ -82,12 +82,24 @@ export type AddressSearchResponse = {
   longitude: number;
 };
 
+export type AdminShipmentOverview = {
+  deliveredShipments: string;
+  pickedUpShipments: string;
+  assignedShipments: string;
+  confirmedShipments: string;
+  pendingShipments: string;
+  inTransit: string;
+  totalShipments: string;
+};
+
 export async function getShipments(params: {
   page: number;
   limit: number;
   keyword?: string;
+  status?: ShipmentStatus;
   customerId?: string;
   driverId?: string;
+  dispatcherId?: string;
 }) {
   const response = await axiosClient.get<ShipmentsResponse>("/shipments", {
     params,
@@ -122,6 +134,16 @@ export async function updateShipmentStatus(
   return response.data.data;
 }
 
+export async function assignShipmentDriver(
+  shipmentId: string,
+  driverId: string,
+) {
+  const response = await axiosClient.patch<ShipmentResponse>(
+    `/shipments/${shipmentId}/${driverId}/assign-driver`,
+  );
+  return response.data.data;
+}
+
 export async function initializeShipmentPayment(
   shipmentId: string,
   amount: number,
@@ -146,5 +168,21 @@ export async function searchShipmentAddress(address: string) {
     status: boolean;
     data: AddressSearchResponse;
   }>("/geoapify/search", { address });
+  return response.data.data;
+}
+
+export async function getAdminDashboardOverview() {
+  const response = await axiosClient.get<{
+    status: boolean;
+    data: AdminShipmentOverview;
+  }>("/analytics/admin/overview");
+  return response.data.data;
+}
+
+export async function getDispatcherDashboardOverview(dispatcherId: string) {
+  const response = await axiosClient.get<{
+    status: boolean;
+    data: AdminShipmentOverview;
+  }>("/analytics/dispatcher/overview");
   return response.data.data;
 }

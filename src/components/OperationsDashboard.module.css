@@ -1,0 +1,174 @@
+.dashboard {
+  padding-top: 3rem;
+}
+
+.welcome h2 {
+  margin-top: 0.7rem;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  letter-spacing: -0.06em;
+}
+
+.welcome > p:last-child {
+  margin-top: 0.8rem;
+  color: #737b70;
+  font-size: 0.9rem;
+}
+
+.kicker {
+  color: #3c8625;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.25rem;
+  border: 1px solid #e2e6df;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.card p {
+  color: #657061;
+  font-size: 0.8rem;
+}
+
+.card strong {
+  font-size: 1.8rem;
+  letter-spacing: -0.05em;
+}
+
+.card span {
+  color: #899287;
+  font-size: 0.72rem;
+}
+
+.section {
+  margin-top: 3rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sectionHeader h3 {
+  margin-top: 0.55rem;
+  color: #111512;
+  font-size: 1.35rem;
+  letter-spacing: -0.04em;
+}
+
+.sectionHeader a {
+  color: #326e20;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.tableCard {
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  border: 1px solid #e2e6df;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.cellTitle,
+.cellSubtitle {
+  display: block;
+}
+
+.cellTitle {
+  color: #20271f;
+  font-size: 0.8rem;
+}
+
+.cellSubtitle {
+  margin-top: 0.3rem;
+  color: #899287;
+  font-size: 0.7rem;
+}
+
+.status {
+  display: inline-block;
+  padding: 0.35rem 0.55rem;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.statusPending {
+  color: #80651b;
+  background: #fff4cf;
+}
+
+.statusConfirmed,
+.statusDelivered {
+  color: #28723a;
+  background: #e5f7e8;
+}
+
+.statusAssigned {
+  color: #315a86;
+  background: #e8f1fc;
+}
+
+.statusPickedUp {
+  color: #16706f;
+  background: #e0f6f3;
+}
+
+.statusInTransit {
+  color: #4e3b8e;
+  background: #eeeafd;
+}
+
+.statusReturned,
+.statusCancelled {
+  color: #923e32;
+  background: #fce9e6;
+}
+
+.statusDefault {
+  color: #566052;
+  background: #eef1ed;
+}
+
+.vehicleStatusAvailable {
+  color: #28723a;
+  background: #e5f7e8;
+}
+
+.vehicleStatusOnTrip {
+  color: #4e3b8e;
+  background: #eeeafd;
+}
+
+.vehicleStatusMaintenance {
+  color: #923e32;
+  background: #fce9e6;
+}
+
+.vehicleStatusOutOfService {
+  color: #566052;
+  background: #eef1ed;
+}
+
+@media (max-width: 650px) {
+  .sectionHeader {
+    align-items: flex-start;
+  }
+}

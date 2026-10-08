@@ -5,6 +5,8 @@ import { useState } from "react";
 import type { SubmitEvent } from "react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
+import toast from "react-hot-toast";
 import {
   login,
   refreshAccessToken,
@@ -63,13 +65,16 @@ export default function Home() {
     const formData = new FormData(event.currentTarget);
 
     try {
-      await login(
+      const session = await login(
         String(formData.get("email")),
         String(formData.get("password")),
       );
+      console.log("Login response", session);
       router.push("/dashboard");
-    } catch {
-      // The Axios response interceptor displays the global error toast.
+    } catch (error) {
+      if (!isAxiosError(error) && error instanceof Error) {
+        toast.error(error.message);
+      }
     } finally {
       setIsSubmitting(false);
     }

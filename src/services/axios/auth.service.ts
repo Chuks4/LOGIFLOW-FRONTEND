@@ -45,9 +45,9 @@ export async function login(email: string, password: string): Promise<Session> {
     password,
   });
   const accessToken = getAccessToken(response.data);
-  console.log("Login accessToken", accessToken);
   const payload = decodeToken(accessToken);
   const role = normalizeRole(payload.userType);
+  console.log("User role", role)
 
   if (!role || !payload.roleId) {
     throw new Error("Invalid credentials");

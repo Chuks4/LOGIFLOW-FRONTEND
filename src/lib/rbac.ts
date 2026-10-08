@@ -1,4 +1,4 @@
-export type RoleName = "admin" | "dispatcher" | "driver" | "customer";
+export type RoleName = "super_admin" | "dispatcher" | "driver" | "customer";
 
 export type Permission = `${string}:${string}`;
 
@@ -10,7 +10,7 @@ export type NavigationItem = {
 };
 
 export const roleLabels: Record<RoleName, string> = {
-  admin: "Administrator",
+  super_admin: "Administrator",
   dispatcher: "Dispatcher",
   driver: "Driver",
   customer: "Customer",
@@ -62,13 +62,19 @@ export const navigation: NavigationItem[] = [
   {
     label: "Users",
     href: "/dashboard/users",
-    resource: "user",
+    resource: "users",
     action: "read",
   },
   {
     label: "Roles & permissions",
     href: "/dashboard/access",
-    resource: "role",
+    resource: "roles",
+    action: "read",
+  },
+  {
+    label: "Permissions",
+    href: "/dashboard/permissions",
+    resource: "permissions",
     action: "read",
   },
 ];
@@ -90,5 +96,6 @@ export function visibleNavigation(permissionSet: Permission[]) {
 export function normalizeRole(role: unknown): RoleName | null {
   if (typeof role !== "string") return null;
   const normalized = role.toLowerCase();
+  if (normalized === "super_admin") return "super_admin";
   return normalized in roleLabels ? (normalized as RoleName) : null;
 }
