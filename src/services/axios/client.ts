@@ -11,7 +11,7 @@ import {
 } from "@/services/axios/auth.service";
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api/v1";
+  process.env.NEXT_API_URL ?? "http://localhost:5000/api/v1";
 const REQUEST_TIMEOUT_MS = 15000;
 console.log("API URL", API_URL);
 type ApiError = {

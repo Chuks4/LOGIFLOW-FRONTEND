@@ -21,7 +21,7 @@ npm install
 Create or update `.env`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+NEXT_API_URL=http://localhost:8000/api/v1
 ```
 
 Start the development server:
