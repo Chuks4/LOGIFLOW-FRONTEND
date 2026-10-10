@@ -7,10 +7,10 @@ import { FiArrowLeft } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { can } from "@/lib/rbac";
 import { readSession } from "@/lib/session";
-import { getRolesPage, type AccessRole } from "@/services/axios/access.service";
 import { createUser, type UserInput } from "@/services/axios/users.service";
 import LocationFields from "../LocationFields";
 import styles from "../users.module.css";
+import { getRoles, Role } from "@/services/axios/roles.service";
 
 const INITIAL_FORM: UserInput & { password: string } = {
   email: "",
@@ -29,31 +29,34 @@ const INITIAL_FORM: UserInput & { password: string } = {
 
 export default function CreateUserPage() {
   const router = useRouter();
-  const [roles, setRoles] = useState<AccessRole[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [form, setForm] = useState(INITIAL_FORM);
   const [isLoadingRoles, setIsLoadingRoles] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const canCreateUser = can(
     readSession()?.permissions ?? [],
-    "user",
+    "users",
     "create",
   );
 
   useEffect(() => {
-    let isActive = true;
-    getRolesPage({ page: 1, limit: 100 })
-      .then((result) => {
-        if (isActive) setRoles(result.data.filter((role) => role.isActive));
-      })
-      .catch(() => {
-        // The Axios interceptor displays the API error toast.
-      })
-      .finally(() => {
-        if (isActive) setIsLoadingRoles(false);
-      });
-    return () => {
-      isActive = false;
+    const fetchRoles = async () => {
+      setIsLoadingRoles(true);
+
+      try {
+        const roles = await getRoles();
+        console.log("Fetched roles", roles.data.data);
+        if (roles.status) {
+          setRoles(roles.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+      } finally {
+        setIsLoadingRoles(false);
+      }
     };
+
+    fetchRoles();
   }, []);
 
   function updateField<K extends keyof typeof form>(
