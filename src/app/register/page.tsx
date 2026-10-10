@@ -17,6 +17,7 @@ const genders = [
 export default function RegisterPage() {
   const [roles, setRoles] = useState<Role[] | []>([]);
   const adminRole = process.env.NEXT_PUBLIC_ADMIN_ROLE;
+  const dispatcher = process.env.NEXT_DISPATCHER_ROLE;
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -25,7 +26,7 @@ export default function RegisterPage() {
         console.log("Fetched roles", roles.data.data);
         if (roles.status) {
           const filteredRoles = roles.data.data.filter(
-            (role) => role.name !== adminRole,
+            (role) => role.name !== adminRole || role.name !== dispatcher,
           );
           setRoles(filteredRoles);
         }

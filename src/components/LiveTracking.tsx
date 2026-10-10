@@ -48,7 +48,7 @@ function FollowMarker({ location }: { location: Location }) {
 }
 
 function socketUrl() {
-  const apiUrl = process.env.NEXT_SOCKET_URL ?? "http://localhost:5000";
+  const apiUrl = process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:5000";
   return new URL(apiUrl).origin;
 }
 
