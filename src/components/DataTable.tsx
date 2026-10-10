@@ -12,7 +12,7 @@ export type TableColumn<T> = {
 
 export type TableAction<T> = {
   key: string;
-  label: ReactNode;
+  label: ReactNode | ((row: T) => ReactNode);
   onClick: (row: T) => void;
   disabled?: (row: T) => boolean;
   hidden?: (row: T) => boolean;
@@ -106,7 +106,9 @@ export default function DataTable<T>({
                               }}
                               type="button"
                             >
-                              {action.label}
+                              {typeof action.label === "function"
+                                ? action.label(row)
+                                : action.label}
                             </button>
                           ))}
                       </div>

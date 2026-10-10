@@ -11,8 +11,8 @@ import {
   getRolePermissionNames,
   removeRolePermissions,
   type AccessPermission,
-  type AccessRole,
-} from "@/services/axios/access.service";
+  type Role,
+} from "@/services/axios/roles.service";
 import styles from "../access.module.css";
 
 const PERMISSIONS_PAGE_SIZE = 15;
@@ -20,7 +20,7 @@ const PERMISSIONS_PAGE_SIZE = 15;
 export default function RoleAccessDetailPage() {
   const params = useParams<{ id: string }>();
   const roleId = params.id;
-  const [role, setRole] = useState<AccessRole | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
   const [permissions, setPermissions] = useState<AccessPermission[]>([]);
   const [assignedNames, setAssignedNames] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -85,7 +85,10 @@ export default function RoleAccessDetailPage() {
     return filteredPermissions.slice(start, start + PERMISSIONS_PAGE_SIZE);
   }, [filteredPermissions, page]);
   const assignedPermissions = useMemo(
-    () => permissions.filter((permission) => assignedNames.includes(permission.name)),
+    () =>
+      permissions.filter((permission) =>
+        assignedNames.includes(permission.name),
+      ),
     [assignedNames, permissions],
   );
   const hasChanges = selectedIds.length > 0;
@@ -171,7 +174,7 @@ export default function RoleAccessDetailPage() {
               Status: <strong>{role.isActive ? "Active" : "Inactive"}</strong>
             </span>
             <span>
-              Assigned:               <strong>{assignedPermissions.length}</strong>
+              Assigned: <strong>{assignedPermissions.length}</strong>
             </span>
           </div>
         </div>

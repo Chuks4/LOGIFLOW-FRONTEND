@@ -14,7 +14,7 @@ import {
   getPermissionsPage,
   updatePermission,
   type AccessPermission,
-} from "@/services/axios/access.service";
+} from "@/services/axios/roles.service";
 import styles from "../access/access.module.css";
 
 const PAGE_SIZE = 10;

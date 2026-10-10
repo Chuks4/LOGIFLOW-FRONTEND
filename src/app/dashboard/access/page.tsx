@@ -13,10 +13,10 @@ import Pagination from "@/components/Pagination";
 import {
   createRole,
   deleteRole,
-  getRolesPage,
+  getRoles,
   updateRole,
-  type AccessRole,
-} from "@/services/axios/access.service";
+  type Role,
+} from "@/services/axios/roles.service";
 import styles from "./access.module.css";
 
 const PAGE_SIZE = 10;
@@ -26,28 +26,24 @@ const EMPTY_FORM: RoleForm = { name: "", desc: "", isActive: true };
 
 export default function AccessPage() {
   const router = useRouter();
-  const [roles, setRoles] = useState<AccessRole[]>([]);
+  const [roles, setRoles] = useState<Role[]>([]);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<AccessRole | null>(null);
+  const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [form, setForm] = useState<RoleForm>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
 
   const loadRoles = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await getRolesPage({
-        page,
-        limit: PAGE_SIZE,
-        keyword: keyword || undefined,
-      });
-      setRoles(result.data);
-      setTotalItems(result.totalItems);
-      setTotalPages(Math.max(result.totalPages, 1));
+      const result = await getRoles(keyword);
+      setRoles(result.data.data);
+      setTotalItems(result.data.totalItems);
+      setTotalPages(Math.max(result.data.totalPages, 1));
     } catch {
       // The Axios interceptor displays the API error toast.
     } finally {
@@ -61,12 +57,12 @@ export default function AccessPage() {
     setIsFormOpen(true);
   }
 
-  function openEdit(role: AccessRole) {
+  function openEdit(role: Role) {
     setEditingRole(role);
     setForm({
       name: role.name,
       desc: role.desc ?? "",
-      isActive: role.isActive,
+      isActive: role.isActive ?? true,
     });
     setIsFormOpen(true);
   }
@@ -99,11 +95,9 @@ export default function AccessPage() {
     }
   }
 
-  async function removeRole(role: AccessRole) {
+  async function removeRole(role: Role) {
     if (
-      !window.confirm(
-        `Delete the "${role.name}" role? This cannot be undone.`,
-      )
+      !window.confirm(`Delete the "${role.name}" role? This cannot be undone.`)
     ) {
       return;
     }
@@ -122,7 +116,7 @@ export default function AccessPage() {
     return () => window.clearTimeout(timeoutId);
   }, [loadRoles]);
 
-  const columns: TableColumn<AccessRole>[] = [
+  const columns: TableColumn<Role>[] = [
     {
       key: "name",
       header: "Role",
@@ -156,7 +150,7 @@ export default function AccessPage() {
     },
   ];
 
-  const actions: TableAction<AccessRole>[] = [
+  const actions: TableAction<Role>[] = [
     {
       key: "edit",
       label: "Edit role",
