@@ -82,7 +82,6 @@ export default function ShipmentsPage() {
       });
       setShipments(result.data);
       setTotalItems(result.totalItems);
-      console.log("Shipment", result);
       setTotalPages(Math.max(result.totalPages, 1));
     } catch {
       // The Axios interceptor displays the API error toast.
