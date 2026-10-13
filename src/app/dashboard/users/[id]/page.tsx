@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { FiArrowLeft } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { can } from "@/lib/rbac";
@@ -40,15 +40,18 @@ function dateValue(date?: string) {
 
 export default function UserDetailPage() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const id = params.id;
   const [user, setUser] = useState<UserProfile | null>(null);
   const [roles, setRoles] = useState<Role[]>([]);
   const [form, setForm] = useState<EditableProfile>(EMPTY_PROFILE);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const permissions = readSession()?.permissions ?? [];
-  const canUpdate = can(permissions, "user", "update");
+  const canUpdate = can(permissions, "users", "update");
+  const [isEditing, setIsEditing] = useState(
+    () => searchParams.get("edit") === "true" && canUpdate,
+  );
 
   const loadUser = useCallback(async () => {
     setIsLoading(true);
@@ -81,7 +84,7 @@ export default function UserDetailPage() {
       await loadUser();
       try {
         const result = await getRoles();
-        setRoles(result.data.data);
+        if (isActive) setRoles(result.data.data);
       } catch {
         // The Axios interceptor displays the API error toast.
       }

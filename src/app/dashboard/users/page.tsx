@@ -71,7 +71,6 @@ export default function UsersPage() {
     const fetchRoles = async () => {
       try {
         const roles = await getRoles();
-        console.log("Fetched roles", roles.data.data);
         if (roles.status) {
           setRoles(roles.data.data);
         }
@@ -144,6 +143,13 @@ export default function UsersPage() {
       key: "view",
       label: "View profile",
       onClick: (user) => router.push(`/dashboard/users/${user.id}`),
+    },
+    {
+      key: "edit",
+      label: "Edit user",
+      hidden: () => !canUpdateUser,
+      onClick: (user) =>
+        router.push(`/dashboard/users/${user.id}?edit=true`),
     },
     {
       key: "change-status",

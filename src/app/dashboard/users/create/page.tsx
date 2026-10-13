@@ -46,7 +46,6 @@ export default function CreateUserPage() {
 
       try {
         const roles = await getRoles();
-        console.log("Fetched roles", roles.data.data);
         if (roles.status) {
           setRoles(roles.data.data);
         }
