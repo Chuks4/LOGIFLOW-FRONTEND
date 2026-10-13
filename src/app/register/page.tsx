@@ -23,7 +23,6 @@ export default function RegisterPage() {
     const fetchRoles = async () => {
       try {
         const roles = await getRoles();
-        console.log("Fetched roles", roles.data.data);
         if (roles.status) {
           const filteredRoles = roles.data.data.filter(
             (role) => role.name !== adminRole && role.name !== dispatcher,

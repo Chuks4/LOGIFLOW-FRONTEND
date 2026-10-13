@@ -75,7 +75,6 @@ export default function CreateShipmentPage() {
         deliveryLng: Number(delivery.longitude),
       });
       setCost(result);
-      console.log("Cost ", result);
     } catch {
       // The Axios interceptor displays the global error toast.
     } finally {

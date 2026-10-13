@@ -59,7 +59,6 @@ axiosClient.interceptors.request.use(async (config) => {
     if (tokenIsExpired) {
       console.log("Not a public endpoint, adding auth header", config.url);
       const refreshedAccessToken = await getRefreshAccessToken();
-      console.log("Refreshed access token", refreshedAccessToken);
 
       config.headers.Authorization = `Bearer ${refreshedAccessToken}`;
     } else {

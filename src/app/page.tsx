@@ -69,7 +69,7 @@ export default function Home() {
         String(formData.get("email")),
         String(formData.get("password")),
       );
-      console.log("Login response", session);
+
       router.push("/dashboard");
     } catch (error) {
       if (!isAxiosError(error) && error instanceof Error) {
