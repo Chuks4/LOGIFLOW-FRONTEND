@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { io, type Socket } from "socket.io-client";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { divIcon, type LatLngExpression } from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MdDirectionsBike } from "react-icons/md"
 
-import { getValidAccessToken } from "@/services/axios/auth.service";
 import styles from "./LiveTracking.module.css";
 import { useRouter } from "next/navigation";
+import { useSocket } from "@/context/SocketContext";
 
 const trackingIcon = divIcon({
   className: styles.trackingMarker,
@@ -47,11 +46,6 @@ function FollowMarker({ location }: { location: Location }) {
   );
 }
 
-function socketUrl() {
-  const apiUrl = process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:5000";
-  return new URL(apiUrl).origin;
-}
-
 export default function LiveTracking({
   shipmentId,
   trackingNumber,
@@ -60,28 +54,34 @@ export default function LiveTracking({
   const [location, setLocation] = useState<Location | null>(null);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { connectSocket } = useSocket();
 
   useEffect(() => {
-    let socket: Socket | null = null;
+    let activeSocket: Awaited<ReturnType<typeof connectSocket>> | null = null;
     let cancelled = false;
 
-    void getValidAccessToken()
-      .then((token) => {
-        if (cancelled) return;
-        socket = io(socketUrl(), { auth: { token } });
+    const joinShipment = () => {
+      activeSocket?.emit("join-shipment", { shipmentId });
+    };
+    const receiveLocation = (data: { location?: Location }) => {
+      if (data.location) setLocation(data.location);
+    };
+    const handleTrackingError = (data: { message?: string }) => {
+      setError(data.message ?? "Unable to track this shipment.");
+    };
+    const handleConnectionError = () => {
+      setError("Unable to connect to live tracking.");
+    };
 
-        socket.on("connect", () => {
-          socket?.emit("join-shipment", { shipmentId });
-        });
-        socket.on("receive-location", (data: { location?: Location }) => {
-          if (data.location) setLocation(data.location);
-        });
-        socket.on("tracking-error", (data: { message?: string }) => {
-          setError(data.message ?? "Unable to track this shipment.");
-        });
-        socket.on("connect_error", () => {
-          setError("Unable to connect to live tracking.");
-        });
+    void connectSocket()
+      .then((sharedSocket) => {
+        if (cancelled) return;
+        activeSocket = sharedSocket;
+        sharedSocket.on("connect", joinShipment);
+        sharedSocket.on("receive-location", receiveLocation);
+        sharedSocket.on("tracking-error", handleTrackingError);
+        sharedSocket.on("connect_error", handleConnectionError);
+        if (sharedSocket.connected) joinShipment();
       })
       .catch(() => {
         if (!cancelled) {
@@ -92,9 +92,12 @@ export default function LiveTracking({
 
     return () => {
       cancelled = true;
-      socket?.disconnect();
+      activeSocket?.off("connect", joinShipment);
+      activeSocket?.off("receive-location", receiveLocation);
+      activeSocket?.off("tracking-error", handleTrackingError);
+      activeSocket?.off("connect_error", handleConnectionError);
     };
-  }, [router, shipmentId]);
+  }, [connectSocket, router, shipmentId]);
 
   const position: LatLngExpression = location
     ? [location.latitude, location.longitude]
