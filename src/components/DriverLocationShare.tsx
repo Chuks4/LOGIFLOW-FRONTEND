@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { io, type Socket } from "socket.io-client";
 import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { divIcon, type LatLngExpression } from "leaflet";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MdDirectionsBike } from "react-icons/md"
 
-import { getValidAccessToken } from "@/services/axios/auth.service";
 import styles from "./DriverLocationShare.module.css";
+import { useSocket } from "@/context/SocketContext";
 
 const sharingIcon = divIcon({
   className: styles.sharingMarker,
@@ -31,11 +30,6 @@ type DriverLocationShareProps = {
   trackingNumber: string;
   onClose: () => void;
 };
-
-function socketUrl() {
-  const apiUrl = process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:5000";
-  return new URL(apiUrl).origin;
-}
 
 function FollowMarker({ location }: { location: Location }) {
   const map = useMap();
@@ -60,9 +54,10 @@ export default function DriverLocationShare({
   const [location, setLocation] = useState<Location | null>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [error, setError] = useState("");
+  const { connectSocket } = useSocket();
 
   useEffect(() => {
-    let socket: Socket | null = null;
+    let activeSocket: Awaited<ReturnType<typeof connectSocket>> | null = null;
     let watchId: number | null = null;
     let cancelled = false;
 
@@ -85,7 +80,7 @@ export default function DriverLocationShare({
       };
 
       setLocation(nextLocation);
-      socket?.emit("send-location", { shipmentId, ...nextLocation });
+      activeSocket?.emit("send-location", { shipmentId, ...nextLocation });
     }
 
     function locationError(positionError: GeolocationPositionError) {
@@ -100,6 +95,7 @@ export default function DriverLocationShare({
       }
 
       setError("");
+      if (watchId !== null) return;
       setIsSharing(true);
       watchId = navigator.geolocation.watchPosition(
         shareLocation,
@@ -108,19 +104,23 @@ export default function DriverLocationShare({
       );
     }
 
-    void getValidAccessToken()
-      .then((token) => {
+    const handleConnectionError = () => {
+      setError("Unable to connect to location sharing.");
+      stopSharing();
+    };
+    const handleTrackingError = (data: { message?: string }) => {
+      setError(data.message ?? "Unable to share this location.");
+      stopSharing();
+    };
+
+    void connectSocket()
+      .then((sharedSocket) => {
         if (cancelled) return;
-        socket = io(socketUrl(), { auth: { token } });
-        socket.on("connect_error", () => {
-          setError("Unable to connect to location sharing.");
-          setIsSharing(false);
-        });
-        socket.on("tracking-error", (data: { message?: string }) => {
-          setError(data.message ?? "Unable to share this location.");
-          setIsSharing(false);
-        });
-        socket.on("connect", startSharing);
+        activeSocket = sharedSocket;
+        sharedSocket.on("connect_error", handleConnectionError);
+        sharedSocket.on("tracking-error", handleTrackingError);
+        sharedSocket.on("connect", startSharing);
+        if (sharedSocket.connected) startSharing();
       })
       .catch(() => {
         if (!cancelled)
@@ -130,9 +130,11 @@ export default function DriverLocationShare({
     return () => {
       cancelled = true;
       if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-      socket?.disconnect();
+      activeSocket?.off("connect_error", handleConnectionError);
+      activeSocket?.off("tracking-error", handleTrackingError);
+      activeSocket?.off("connect", startSharing);
     };
-  }, [shipmentId]);
+  }, [connectSocket, shipmentId]);
 
   const position: LatLngExpression = location
     ? [location.latitude, location.longitude]

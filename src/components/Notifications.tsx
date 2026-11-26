@@ -1,27 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { io, type Socket } from "socket.io-client";
 import { FiBell, FiCheck, FiX } from "react-icons/fi";
 
-import { getValidAccessToken } from "@/services/axios/auth.service";
 import {
   getUserNotifications,
   markAllNotificationsAsRead,
   markNotificationAsRead,
   type UserNotification,
 } from "@/services/axios/notifications.service";
+import { useSocket } from "@/context/SocketContext";
 
 import styles from "./Notifications.module.css";
 
 type IncomingNotification = UserNotification & {
   count?: number;
 };
-
-function socketUrl() {
-  const apiUrl = process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:5000";
-  return new URL(apiUrl).origin;
-}
 
 function formatNotificationDate(value: string) {
   const date = new Date(value);
@@ -39,12 +33,15 @@ export default function Notifications() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const { connectSocket } = useSocket();
 
   const loadNotifications = useCallback(async () => {
     try {
       const result = await getUserNotifications();
       setNotifications(result);
-      setUnreadCount(result.filter((notification) => !notification.isRead).length);
+      setUnreadCount(
+        result.filter((notification) => !notification.isRead).length,
+      );
     } catch {
       // The Axios interceptor displays the API error toast.
     } finally {
@@ -61,26 +58,27 @@ export default function Notifications() {
   }, [loadNotifications]);
 
   useEffect(() => {
-    let socket: Socket | null = null;
     let cancelled = false;
+    let activeSocket: Awaited<ReturnType<typeof connectSocket>> | null = null;
 
-    void getValidAccessToken()
-      .then((token) => {
+    const handleNotification = (incoming: IncomingNotification) => {
+      setNotifications((current) => {
+        if (current.some((notification) => notification.id === incoming.id))
+          return current;
+        return [incoming, ...current];
+      });
+      setUnreadCount(
+        typeof incoming.count === "number"
+          ? incoming.count
+          : (count) => count + (incoming.isRead ? 0 : 1),
+      );
+    };
+
+    void connectSocket()
+      .then((sharedSocket) => {
         if (cancelled) return;
-
-        socket = io(socketUrl(), { auth: { token } });
-        socket.on("notification:new", (incoming: IncomingNotification) => {
-          setNotifications((current) => {
-            if (current.some((notification) => notification.id === incoming.id))
-              return current;
-            return [incoming, ...current];
-          });
-          setUnreadCount(
-            typeof incoming.count === "number"
-              ? incoming.count
-              : (count) => count + (incoming.isRead ? 0 : 1),
-          );
-        });
+        activeSocket = sharedSocket;
+        sharedSocket.on("notification:new", handleNotification);
       })
       .catch(() => {
         if (!cancelled) setIsLoading(false);
@@ -88,9 +86,9 @@ export default function Notifications() {
 
     return () => {
       cancelled = true;
-      socket?.disconnect();
+      activeSocket?.off("notification:new", handleNotification);
     };
-  }, []);
+  }, [connectSocket]);
 
   async function markAsRead(notification: UserNotification) {
     if (notification.isRead || isUpdating) return;
@@ -205,7 +203,9 @@ export default function Notifications() {
                   </div>
                   <p className={styles.message}>{notification.message}</p>
                   <div className={styles.notificationFooter}>
-                    <span>{formatNotificationDate(notification.createdAt)}</span>
+                    <span>
+                      {formatNotificationDate(notification.createdAt)}
+                    </span>
                     {!notification.isRead && (
                       <button
                         className={styles.markReadButton}
