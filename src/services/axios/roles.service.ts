@@ -129,6 +129,18 @@ export async function getRolePermissionNames(roleId: string) {
   return response.data.data;
 }
 
+export async function getRolePermissions(roleId: string, accessToken: string) {
+  const response = await axiosClient.get<RolePermissionsResponse>(
+    `/permissions/role/${roleId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+  return response.data;
+}
+
 export async function assignRolePermissions(
   roleId: string,
   permissionIds: string[],

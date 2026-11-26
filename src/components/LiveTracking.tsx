@@ -63,12 +63,15 @@ export default function LiveTracking({
     const joinShipment = () => {
       activeSocket?.emit("join-shipment", { shipmentId });
     };
+
     const receiveLocation = (data: { location?: Location }) => {
       if (data.location) setLocation(data.location);
     };
+
     const handleTrackingError = (data: { message?: string }) => {
       setError(data.message ?? "Unable to track this shipment.");
     };
+    
     const handleConnectionError = () => {
       setError("Unable to connect to live tracking.");
     };

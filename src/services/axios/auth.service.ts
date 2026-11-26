@@ -1,5 +1,3 @@
-import type { Permission, RoleName } from "@/lib/rbac";
-import { normalizeRole } from "@/lib/rbac";
 import {
   clearSession,
   readSession,
@@ -9,21 +7,20 @@ import {
 import { axiosClient } from "./client";
 
 type AuthResponse = {
+  status?: boolean;
+  message?: string;
   accessToken?: string;
 };
 
-type PermissionResponse = {
-  data?: string[];
-};
 
 type TokenPayload = {
-  id: string
+  id: string;
   exp?: number;
   roleId?: string;
   userType?: string;
 };
 
-function decodeToken(token: string): TokenPayload {
+export function decodeToken(token: string): TokenPayload {
   const payload = token.split(".")[1];
   if (!payload) throw new Error("Invalid token");
 
@@ -32,39 +29,18 @@ function decodeToken(token: string): TokenPayload {
   ) as TokenPayload;
 }
 
-function getAccessToken(response: AuthResponse) {
+export function getAccessToken(response: AuthResponse) {
   if (!response.accessToken) {
     throw new Error("Invalid token");
   }
   return response.accessToken;
 }
 
-export async function login(email: string, password: string): Promise<Session> {
-  const response = await axiosClient.post<AuthResponse>("/auth/login", {
+export async function login(email: string, password: string) {
+  return await axiosClient.post<AuthResponse>("/auth/login", {
     email,
     password,
   });
-  const accessToken = getAccessToken(response.data);
-  const payload = decodeToken(accessToken);
-  const role = normalizeRole(payload.userType);
-
-  if (!role || !payload.roleId) {
-    throw new Error("Invalid credentials");
-  }
-
-  const permissionsResponse = await axiosClient.get<PermissionResponse>(
-    `/permissions/role/${payload.roleId}`,
-    { headers: { Authorization: `Bearer ${accessToken}` } },
-  );
-  const session: Session = {
-    id: payload.id,
-    accessToken,
-    userType: role as RoleName,
-    roleId: payload.roleId,
-    permissions: (permissionsResponse.data.data ?? []) as Permission[],
-  };
-  saveSession(session);
-  return session;
 }
 
 export async function register(data: Record<string, string>) {

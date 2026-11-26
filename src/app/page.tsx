@@ -11,10 +11,20 @@ import {
   login,
   refreshAccessToken,
   tokenExpiresAt,
+  decodeToken,
+  getAccessToken,
 } from "@/services/axios/auth.service";
 import PasswordField from "@/components/PasswordField";
-import { clearSession, readSession } from "@/lib/session";
+import {
+  clearSession,
+  readSession,
+  type Session,
+  saveSession,
+} from "@/lib/session";
 import styles from "./page.module.css";
+import { getRolePermissions } from "@/services/axios/roles.service";
+import type { RoleName, Permission } from "@/lib/rbac";
+import { normalizeRole } from "@/lib/rbac";
 
 export default function Home() {
   const router = useRouter();
@@ -65,12 +75,37 @@ export default function Home() {
     const formData = new FormData(event.currentTarget);
 
     try {
-      const session = await login(
+      const response = await login(
         String(formData.get("email")),
         String(formData.get("password")),
       );
 
-      router.push("/dashboard");
+      const accessToken = getAccessToken(response.data);
+      const payload = decodeToken(accessToken);
+      const role = normalizeRole(payload.userType);
+
+      if (!role || !payload.roleId) {
+        throw new Error("Invalid credentials");
+      }
+
+      const resp = await getRolePermissions(payload.roleId, accessToken);
+      if (resp.status) {
+        const permissions: Permission[] = resp.data as Permission[];
+
+        const session: Session = {
+          id: payload.id,
+          accessToken,
+          userType: role as RoleName,
+          roleId: payload.roleId,
+          permissions,
+        };
+
+        // Persist the session only after both authentication and permissions load succeed.
+        saveSession(session);
+
+        // Navigate to the dashboard after successful login
+        router.push("/dashboard");
+      }
     } catch (error) {
       if (!isAxiosError(error) && error instanceof Error) {
         toast.error(error.message);
